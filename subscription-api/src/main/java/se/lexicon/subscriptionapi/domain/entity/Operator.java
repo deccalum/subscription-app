@@ -1,13 +1,11 @@
 package se.lexicon.subscriptionapi.domain.entity;
 
+import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.hibernate.annotations.CreationTimestamp;
-
-import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Getter
 @Setter
@@ -24,7 +22,6 @@ public class Operator {
     private String name;
 
     @OneToMany(mappedBy = "operator", cascade = CascadeType.ALL, orphanRemoval = true)
-    @ToString.Exclude
     private Set<Plan> plans = new HashSet<>();
 
     @Column(nullable = false, updatable = false)

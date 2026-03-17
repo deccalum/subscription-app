@@ -1,22 +1,17 @@
 package se.lexicon.subscriptionapi.domain.entity;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import lombok.*;
-
 import se.lexicon.subscriptionapi.domain.constant.PlanStatus;
-import se.lexicon.subscriptionapi.domain.constant.ServiceType;
 
 @Getter
 @Setter
 @Entity
-@Table(
-    name = "plans",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"operator_id", "name"})
-)
-public class Plan {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "plan_kind")
+@Table(name = "plans")
+public abstract class Plan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,15 +23,8 @@ public class Plan {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, scale = 2, precision = 10)
-    private BigDecimal price;
-
-    @Column
-    private BigInteger limit; 
-
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private ServiceType type;
+    private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

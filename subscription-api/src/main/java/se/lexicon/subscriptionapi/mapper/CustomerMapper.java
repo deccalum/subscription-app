@@ -8,7 +8,11 @@ import se.lexicon.subscriptionapi.dto.response.CustomerResponse;
 
 @Mapper(componentModel = "spring")
 public interface CustomerMapper {
-
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "customerDetail", ignore = true)
+    @Mapping(target = "subscriptions", ignore = true)
     Customer toEntity(CustomerRequest request);
 
     CustomerResponse toResponse(Customer customer);

@@ -1,12 +1,9 @@
 package se.lexicon.subscriptionapi.domain.entity;
 
-import java.time.Instant;
-
-import org.hibernate.annotations.CreationTimestamp;
-
 import jakarta.persistence.*;
+import java.time.Instant;
 import lombok.*;
-
+import org.hibernate.annotations.CreationTimestamp;
 import se.lexicon.subscriptionapi.domain.constant.SubscriptionStatus;
 
 @Getter

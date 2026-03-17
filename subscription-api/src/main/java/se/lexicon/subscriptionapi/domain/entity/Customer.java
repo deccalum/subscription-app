@@ -1,15 +1,12 @@
 package se.lexicon.subscriptionapi.domain.entity;
 
+import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.hibernate.annotations.CreationTimestamp;
-
-import jakarta.persistence.*;
 import lombok.*;
-
-import se.lexicon.subscriptionapi.domain.constant.Role;
+import org.hibernate.annotations.CreationTimestamp;
+import se.lexicon.subscriptionapi.domain.constant.UserRole;
 
 @Getter
 @Setter
@@ -40,7 +37,7 @@ public class Customer {
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     @ToString.Exclude
-    private Set<Role> roles = new HashSet<>();
+    private Set<UserRole> roles = new HashSet<>();
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_detail_id")

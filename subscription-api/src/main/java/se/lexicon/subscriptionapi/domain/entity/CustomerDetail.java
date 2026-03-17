@@ -1,13 +1,10 @@
 package se.lexicon.subscriptionapi.domain.entity;
 
+import jakarta.persistence.*;
 import java.time.Instant;
-
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import jakarta.persistence.*;
-
-import lombok.*;
 
 @Getter
 @Setter
