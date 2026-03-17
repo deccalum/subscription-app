@@ -1,14 +1,28 @@
 services:
-  mysql-db:
-    image: mysql:latest
-    container_name: mysql-database
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: postgres-database
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: subscription_db
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: subscription_db
     ports:
-      - "3307:3306"
+      - "5432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+  cloudbeaver:
+    image: dbeaver/cloudbeaver:latest
+    container_name: cloudbeaver
+    environment:
+      CLOUDBEAVER_FORCE_HTTPS: "false"
+    ports:
+      - "9091:8978"
+    volumes:
+      - cloudbeaver_data:/opt/cloudbeaver/workspace
+    depends_on:
+      - postgres-db
     restart: always
 
   redis:
@@ -19,4 +33,5 @@ services:
     restart: always
 
 volumes:
-  mysql_data:
+  postgres_data:
+  cloudbeaver_data:

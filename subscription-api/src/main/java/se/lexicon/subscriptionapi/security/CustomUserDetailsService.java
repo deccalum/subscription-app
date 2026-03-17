@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import se.lexicon.subscriptionapi.domain.entity.Customer;
-import se.lexicon.subscriptionapi.domain.constant.Role;
+import se.lexicon.subscriptionapi.domain.constant.UserRole;
 import se.lexicon.subscriptionapi.repository.CustomerRepository;
 
 import java.util.stream.Collectors;

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import se.lexicon.subscriptionapi.domain.constant.Role;
+import se.lexicon.subscriptionapi.domain.constant.UserRole;
 import se.lexicon.subscriptionapi.domain.entity.Customer;
 import se.lexicon.subscriptionapi.domain.entity.CustomerDetail;
 import se.lexicon.subscriptionapi.dto.request.CustomerDetailRequest;
@@ -40,7 +40,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setPassword(passwordEncoder.encode(customer.getPassword()));
         // default role
         if (customer.getRoles() == null || customer.getRoles().isEmpty()) {
-            customer.getRoles().add(Role.ROLE_USER);
+            customer.getRoles().add(UserRole.ROLE_USER);
         }
         Customer savedCustomer = customerRepository.save(customer);
         return customerMapper.toResponse(savedCustomer);

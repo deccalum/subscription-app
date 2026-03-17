@@ -1,0 +1,99 @@
+### Base config
+@baseUrl = http://localhost:8080
+@adminEmail = admin@example.com
+@adminPassword = password
+@token = {{loginAdmin.response.body.$.accessToken}}
+
+### 1) Login as seeded admin (from DataSeeder)
+# @name loginAdmin
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+	"email": "{{adminEmail}}",
+	"password": "{{adminPassword}}"
+}
+
+### 2) Create operators (ADMIN only)
+POST {{baseUrl}}/api/v1/operators
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+	"name": "Telia"
+}
+
+###
+POST {{baseUrl}}/api/v1/operators
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+	"name": "Telenor"
+}
+
+###
+POST {{baseUrl}}/api/v1/operators
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+	"name": "Tele2"
+}
+
+### 3) List operators (confirm from REST client)
+GET {{baseUrl}}/api/v1/operators
+Authorization: Bearer {{token}}
+
+### 4) Create normal customers (public endpoint)
+POST {{baseUrl}}/api/v1/customers
+Content-Type: application/json
+
+{
+	"email": "alice@example.com",
+	"firstName": "Alice",
+	"lastName": "Andersson",
+	"password": "Password123!"
+}
+
+###
+POST {{baseUrl}}/api/v1/customers
+Content-Type: application/json
+
+{
+	"email": "bob@example.com",
+	"firstName": "Bob",
+	"lastName": "Berg",
+	"password": "Password123!"
+}
+
+### 5) List customers (requires token)
+GET {{baseUrl}}/api/v1/customers
+Authorization: Bearer {{token}}
+
+### 6) Run these in CloudBeaver SQL editor (http://localhost:9091)
+INSERT INTO plans (operator_id, name, price, data_limit, type, status)
+SELECT o.id, 'Unlimited 5G', 399.00, NULL, 'MOBILE', 'ACTIVE'
+FROM operators o WHERE o.name = 'Telia';
+#
+INSERT INTO plans (operator_id, name, price, data_limit, type, status)
+SELECT o.id, 'Fiber 250', 299.00, NULL, 'INTERNET', 'ACTIVE'
+FROM operators o WHERE o.name = 'Telenor';
+#
+INSERT INTO plans (operator_id, name, price, data_limit, type, status)
+SELECT o.id, 'Budget Surf', 149.00, 100, 'MOBILE', 'INACTIVE'
+FROM operators o WHERE o.name = 'Tele2';
+
+## 7)
+SELECT
+    o.id   AS operator_id,
+    o.name AS operator_name,
+    p.id   AS plan_id,
+    p.name AS plan_name,
+    p.price,
+    p.data_limit,
+    p.type,
+    p.status
+FROM operators o
+LEFT JOIN plans p ON p.operator_id = o.id
+ORDER BY o.id, p.id;
