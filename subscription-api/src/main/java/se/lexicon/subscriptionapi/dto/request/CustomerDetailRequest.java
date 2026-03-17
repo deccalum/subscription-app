@@ -4,13 +4,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 public record CustomerDetailRequest(
-        @NotBlank(message = "Address is required")
+        @NotBlank(message = "{blank}") 
         String address,
 
-        @NotBlank(message = "Phone number is required")
-        @Pattern(regexp = "^\\+?[0-9\\s-]{7,20}$", message = "Invalid phone number")
+        @NotBlank(message = "{blank}") 
+        @Pattern(regexp = "^\\+?[0-9\\s-]{7,20}$", message = "{invalidNumber}")
         String phoneNumber,
-
+        
         String preferences
-) {
-}
+) {}

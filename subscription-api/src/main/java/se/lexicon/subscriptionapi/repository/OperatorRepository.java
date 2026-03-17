@@ -1,10 +1,10 @@
 package se.lexicon.subscriptionapi.repository;
 
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import se.lexicon.subscriptionapi.domain.entity.Operator;
 
-import java.util.Optional;
 
 @Repository
 public interface OperatorRepository extends JpaRepository<Operator, Long> {

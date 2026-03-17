@@ -1,6 +1,8 @@
 package se.lexicon.subscriptionapi.config;
 
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -8,12 +10,11 @@ import se.lexicon.subscriptionapi.domain.constant.Role;
 import se.lexicon.subscriptionapi.domain.entity.Customer;
 import se.lexicon.subscriptionapi.repository.CustomerRepository;
 
-import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class DataSeeder implements CommandLineRunner {
-
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -33,7 +34,7 @@ public class DataSeeder implements CommandLineRunner {
             admin.setPassword(passwordEncoder.encode("password"));
             admin.setRoles(Set.of(Role.ROLE_ADMIN, Role.ROLE_USER));
             customerRepository.save(admin);
-            System.out.println("[DATA_SEED] Admin user created: " + adminEmail);
+            log.info("[DATA_SEED] Admin user created: {}", adminEmail);
         }
     }
 
@@ -47,8 +48,7 @@ public class DataSeeder implements CommandLineRunner {
             user.setPassword(passwordEncoder.encode("password"));
             user.setRoles(Set.of(Role.ROLE_USER));
             customerRepository.save(user);
-            System.out.println("[DATA_SEED] Regular user created: " + userEmail);
+            log.info("[DATA_SEED] Regular user created: {}", userEmail);
         }
     }
-
 }

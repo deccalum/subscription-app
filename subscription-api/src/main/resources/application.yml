@@ -1,6 +1,9 @@
 spring:
   application:
     name: subscription-api
+  main:
+    log-startup-info: false
+    banner-mode: off
   datasource:
     url: jdbc:mysql://localhost:3307/subscription_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Europe/Stockholm
     username: root
@@ -18,10 +21,10 @@ spring:
       host: localhost
       port: 6379
   jpa:
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
     hibernate:
       ddl-auto: create
     database-platform: org.hibernate.dialect.MySQLDialect
@@ -41,3 +44,14 @@ app:
   security:
     token-blacklist:
       enabled: true
+
+logging:
+  level:
+    root: warn
+    org.springframework: warn
+    org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver: error
+    org.hibernate: warn
+    org.hibernate.SQL: off
+    org.hibernate.orm.jdbc.bind: off
+    org.springdoc.core.events.SpringDocAppInitializer: error
+    se.lexicon.subscriptionapi.config.DataSeeder: info

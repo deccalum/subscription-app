@@ -6,29 +6,8 @@ import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import jakarta.persistence.*;
+import lombok.*;
 
 import se.lexicon.subscriptionapi.domain.constant.Role;
 
@@ -39,29 +18,20 @@ import se.lexicon.subscriptionapi.domain.constant.Role;
 @Entity
 @Table(name = "customers")
 public class Customer {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true)
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
     private String email;
 
     @Column(nullable = false)
-    @NotBlank(message = "First name is required")
-    @Size(min = 2, max = 50)
     private String firstName;
 
     @Column(nullable = false)
-    @NotBlank(message = "Last name is required")
-    @Size(min = 2, max = 50)
     private String lastName;
 
     @Column(nullable = false)
-    @NotBlank(message = "Password is required")
-    @Size(min = 6)
     @ToString.Exclude
     private String password;
 
