@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record CustomerRequest(
+        Long id,
+
         @NotBlank(message = "{blank}") 
         @Email(message = "{invalidEmail}")
         @Size(min = 5, max = 100, message = "{invalidLength}") 

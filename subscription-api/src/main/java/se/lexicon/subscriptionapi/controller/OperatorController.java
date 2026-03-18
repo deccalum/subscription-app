@@ -34,21 +34,21 @@ public class OperatorController {
     @GetMapping("/{id}")
     @Operation(summary = "Get operator by ID", description = "Requires JWT.\n\nRoles: USER, ADMIN")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<OperatorResponse> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(operatorService.findById(id));
+    public ResponseEntity<OperatorResponse> read(@PathVariable Long id) {
+        return ResponseEntity.ok(operatorService.read(id));
     }
 
     @GetMapping("/search")
     @Operation(summary = "Search operator by name", description = "Requires JWT.\n\nRoles: USER, ADMIN")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<OperatorResponse> findByName(@RequestParam String name) {
-        return ResponseEntity.ok(operatorService.findByName(name));
+        return ResponseEntity.ok(operatorService.getName(name));
     }
 
     @GetMapping
     @Operation(summary = "Get all operators", description = "Requires JWT.\n\nRoles: USER, ADMIN")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<List<OperatorResponse>> findAll() {
-        return ResponseEntity.ok(operatorService.findAll());
+    public ResponseEntity<List<OperatorResponse>> get() {
+        return ResponseEntity.ok(operatorService.getAll());
     }
 }

@@ -7,6 +7,7 @@ import se.lexicon.subscriptionapi.domain.entity.Operator;
 
 @Repository
 public interface OperatorRepository extends JpaRepository<Operator, Long> {
+    Optional<Operator> findById(Long id);
     Optional<Operator> findByName(String name);
     Optional<Operator> findByNameIgnoreCase(String name);
     boolean existsByName(String name);

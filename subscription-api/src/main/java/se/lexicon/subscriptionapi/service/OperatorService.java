@@ -7,7 +7,10 @@ import java.util.List;
 
 public interface OperatorService {
     OperatorResponse create(OperatorRequest request);
-    OperatorResponse findById(Long id);
-    OperatorResponse findByName(String name);
-    List<OperatorResponse> findAll();
+    OperatorResponse read(Long id);
+    OperatorResponse update(Long id, OperatorRequest request);
+    void delete(Long id);
+
+    OperatorResponse getName(String name);
+    List<OperatorResponse> getAll();
 }

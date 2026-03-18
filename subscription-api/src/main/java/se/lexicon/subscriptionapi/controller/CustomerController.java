@@ -32,7 +32,7 @@ public class CustomerController {
             description = "Public endpoint. Creates a customer account.\n\nRoles: Public"
     )
     public ResponseEntity<CustomerResponse> register(@Valid @RequestBody CustomerRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(customerService.register(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(customerService.create(request));
     }
 
     @GetMapping("/{id}")
@@ -42,8 +42,8 @@ public class CustomerController {
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<CustomerResponse> findById(@PathVariable Long id) {
-        return ResponseEntity.ok(customerService.findById(id));
+    public ResponseEntity<CustomerResponse> read(@PathVariable Long id) {
+        return ResponseEntity.ok(customerService.read(id));
     }
 
     @GetMapping("/email/{email}")
@@ -53,8 +53,8 @@ public class CustomerController {
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<CustomerResponse> findByEmail(@PathVariable String email) {
-        return ResponseEntity.ok(customerService.findByEmail(email));
+    public ResponseEntity<CustomerResponse> getEmail(@PathVariable String email) {
+        return ResponseEntity.ok(customerService.getEmail(email));
     }
 
     @GetMapping
@@ -64,20 +64,21 @@ public class CustomerController {
             security = @SecurityRequirement(name = "bearerAuth")
     )
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<List<CustomerResponse>> findAll() {
-        return ResponseEntity.ok(customerService.findAll());
+    public ResponseEntity<List<CustomerResponse>> getAll() {
+        return ResponseEntity.ok(customerService.getAll());
     }
 
-    @PutMapping("/{id}/profile")
-    @Operation(
-            summary = "Update customer profile",
-            description = "Requires JWT.\n\nRoles: USER, ADMIN",
-            security = @SecurityRequirement(name = "bearerAuth")
-    )
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    public ResponseEntity<CustomerResponse> updateProfile(
-            @PathVariable Long id,
-            @Valid @RequestBody CustomerDetailRequest detailRequest) {
-        return ResponseEntity.ok(customerService.updateProfile(id, detailRequest));
-    }
+    // @PutMapping("/{id}/profile")
+    // @Operation(
+    //         summary = "Update customer profile",
+    //         description = "Requires JWT.\n\nRoles: USER, ADMIN",
+    //         security = @SecurityRequirement(name = "bearerAuth")
+    // )
+    
+    // @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    // public ResponseEntity<CustomerResponse> updateProfile(
+    //         @PathVariable Long id,
+    //         @Valid @RequestBody CustomerRequest detailRequest) {
+    //     return ResponseEntity.ok(customerService.update(id, detailRequest));
+    // }
 }

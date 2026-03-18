@@ -67,7 +67,7 @@ public class AuthController {
             description = "Public endpoint. Creates a new customer account.\n\nRoles: Public"
     )
     public ResponseEntity<?> register(@Valid @RequestBody CustomerRequest request) {
-        return ResponseEntity.ok(customerService.register(request));
+        return ResponseEntity.ok(customerService.create(request));
     }
 
     @PostMapping("/logout")

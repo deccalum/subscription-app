@@ -1,15 +1,16 @@
 package se.lexicon.subscriptionapi.service;
 
-import se.lexicon.subscriptionapi.dto.request.CustomerDetailRequest;
+import java.util.List;
 import se.lexicon.subscriptionapi.dto.request.CustomerRequest;
 import se.lexicon.subscriptionapi.dto.response.CustomerResponse;
 
-import java.util.List;
-
 public interface CustomerService {
-    CustomerResponse register(CustomerRequest request);
-    CustomerResponse findById(Long id);
-    CustomerResponse findByEmail(String email);
-    List<CustomerResponse> findAll();
-    CustomerResponse updateProfile(Long customerId, CustomerDetailRequest detailRequest);
+    CustomerResponse create(CustomerRequest request);
+    CustomerResponse read(Long id);
+    CustomerResponse update(Long id, CustomerRequest request);
+    void delete(Long id);
+    
+    List<CustomerResponse> getAll();
+    CustomerResponse getEmail(String email);
+    CustomerResponse getName(String name);
 }

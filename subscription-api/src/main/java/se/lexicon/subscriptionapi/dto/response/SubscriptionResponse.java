@@ -6,6 +6,7 @@ import se.lexicon.subscriptionapi.domain.constant.SubscriptionStatus;
 
 public record SubscriptionResponse(
         Long id,
+        Long operatorId,
         Long customerId,
         Long planId,
         String planName,

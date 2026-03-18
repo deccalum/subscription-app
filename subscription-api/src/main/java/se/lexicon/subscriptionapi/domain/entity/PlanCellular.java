@@ -4,8 +4,7 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import lombok.*;
 
-@Getter
-@Setter
+@Getter @Setter
 @Entity
 @DiscriminatorValue("CELLULAR")
 public class PlanCellular extends Plan {

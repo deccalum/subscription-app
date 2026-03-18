@@ -1,21 +1,21 @@
 package se.lexicon.subscriptionapi.dto.request;
 
 import jakarta.validation.constraints.Digits;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.math.BigDecimal;
+import se.lexicon.subscriptionapi.domain.constant.PlanKind;
 import se.lexicon.subscriptionapi.domain.constant.PlanStatus;
 
 public record PlanRequest(
-        @NotBlank(message = "{blank}") 
-        String kind,
+        @NotNull(message = "{required}") 
+        PlanKind kind,
 
-        @NotBlank(message = "{blank}") 
+        @NotNull(message = "{required}") 
         String name,
 
         @NotNull(message = "{required}") 
-        Long operatorId,
+        Long operator,
 
         @NotNull(message = "{required}") 
         @Positive(message = "{positive}") 

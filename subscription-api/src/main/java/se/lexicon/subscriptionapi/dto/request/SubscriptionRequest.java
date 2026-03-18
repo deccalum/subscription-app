@@ -7,6 +7,10 @@ import se.lexicon.subscriptionapi.domain.constant.SubscriptionStatus;
 
 public record SubscriptionRequest(
         @NotNull(message = "{required}") 
+        @Positive(message = "{invalidId}")
+        Long operatorId,
+
+        @NotNull(message = "{required}") 
         @Positive(message = "{invalidId}") 
         Long planId,
 

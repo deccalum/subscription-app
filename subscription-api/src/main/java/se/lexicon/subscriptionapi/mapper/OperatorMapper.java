@@ -9,7 +9,7 @@ import se.lexicon.subscriptionapi.dto.response.OperatorResponse;
 
 @Mapper(componentModel = "spring", uses = PlanMapper.class)
 public interface OperatorMapper {
-    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "id", source = "operator")
     @Mapping(target = "plans", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     Operator toEntity(OperatorRequest request);
