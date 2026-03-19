@@ -11,9 +11,9 @@ public interface UserService {
     UserResponse read(Long id);
     UserResponse update(Long id, UserRequest request);
     void delete(Long id);
-    
+
     List<UserResponse> getAll();
-    UserResponse getCredentials(UserCredentials credentials);
+    UserResponse getCredentials(UserCredentials credential);
     UserResponse getEmail(String email);
     UserResponse getName(String name);
 }

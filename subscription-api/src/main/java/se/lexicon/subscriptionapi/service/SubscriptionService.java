@@ -2,6 +2,7 @@ package se.lexicon.subscriptionapi.service;
 
 import java.util.List;
 
+import se.lexicon.subscriptionapi.domain.constant.SubscriptionStatus;
 import se.lexicon.subscriptionapi.dto.request.SubscriptionRequest;
 import se.lexicon.subscriptionapi.dto.response.SubscriptionResponse;
 
@@ -13,5 +14,5 @@ public interface SubscriptionService {
 
     List<SubscriptionResponse> getAll();
     List<SubscriptionResponse> getUserId(Long userId);
-    List<SubscriptionResponse> getStatus(SubscriptionRequest request);
+    List<SubscriptionResponse> getStatus(SubscriptionStatus status);
 }

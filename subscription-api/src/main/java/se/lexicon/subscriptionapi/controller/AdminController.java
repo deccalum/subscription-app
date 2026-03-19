@@ -15,7 +15,10 @@ import se.lexicon.subscriptionapi.dto.request.RejectChangeRequest;
 import se.lexicon.subscriptionapi.dto.response.ChangeRequestResponse;
 import se.lexicon.subscriptionapi.service.AdministrationService;
 
-@Tag(name = "Admin", description = "Change request review endpoints.")
+@Tag(
+    name = "Admin",
+    description = "Change request review endpoints."
+)
 @RestController
 @RequestMapping("/api/v1/admin/requests")
 @RequiredArgsConstructor
@@ -25,28 +28,45 @@ public class AdminController {
     private final AdministrationService administrationService;
 
     @GetMapping
-    @Operation(summary = "Get change requests by status", description = "Requires JWT.\n\nRoles: ADMIN")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+        summary = "{api.admin.getByStatus.summary}",
+        description = "{api.admin.getByStatus.description}",
+        security = @SecurityRequirement(name = "bearerAuth")
+    )
     public ResponseEntity<List<ChangeRequestResponse>> getByStatus(
             @RequestParam(defaultValue = "PENDING") RequestStatus status) {
-        return ResponseEntity.ok(administrationService.getByStatus(status));
+
+        return ResponseEntity
+        .ok(administrationService.getByStatus(status));
     }
 
     @PostMapping("/{id}/approve")
-    @Operation(summary = "Approve a change request", description = "Executes the queued action and marks it APPROVED.\n\nRoles: ADMIN")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+        summary = "{api.admin.approve.summary}",
+        description = "{api.admin.approve.description}",
+        security = @SecurityRequirement(name = "bearerAuth")
+    )
     public ResponseEntity<ChangeRequestResponse> approveRequest(
             @PathVariable Long id, Authentication authentication) {
-        return ResponseEntity.ok(administrationService.approveRequest(id, authentication.getName()));
+
+        return ResponseEntity
+        .ok(administrationService.approveRequest(id, authentication.getName()));
     }
 
     @PostMapping("/{id}/reject")
-    @Operation(summary = "Reject a change request", description = "Stores rejection reason and marks it REJECTED.\n\nRoles: ADMIN")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(
+        summary = "{api.admin.reject.summary}",
+        description = "{api.admin.reject.description}",
+        security = @SecurityRequirement(name = "bearerAuth")
+    )
     public ResponseEntity<ChangeRequestResponse> rejectRequest(
             @PathVariable Long id,
             @Valid @RequestBody RejectChangeRequest body,
             Authentication authentication) {
+
         return ResponseEntity.ok(
                 administrationService.rejectRequest(id, body.reason(), authentication.getName()));
     }

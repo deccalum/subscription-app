@@ -8,10 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import se.lexicon.subscriptionapi.domain.constant.UserCredentials;
 import se.lexicon.subscriptionapi.dto.request.UserRequest;
 import se.lexicon.subscriptionapi.dto.response.UserResponse;
 import se.lexicon.subscriptionapi.mapper.UserMapper;
+import se.lexicon.subscriptionapi.domain.constant.UserCredentials;
 import se.lexicon.subscriptionapi.repository.UserRepository;
 
 @Service @RequiredArgsConstructor
@@ -63,9 +63,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override @Transactional(readOnly = true)
-    public UserResponse getCredentials(UserCredentials credentials) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCredentials'");
+    public UserResponse getCredentials(UserCredentials credential) {
+        return UserRepository.findByRolesContaining(credential).map(UserMapper::toResponse).orElse(null);
     }
 
     @Override @Transactional(readOnly = true)

@@ -14,9 +14,6 @@ import se.lexicon.subscriptionapi.dto.response.ChangeRequestResponse;
 
 @Mapper(componentModel = "spring")
 public interface RequestMapper {
-
-    // TODO: Current style keeps entity/request construction in mapper methods; may move back to service layer later.
-
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "requestedBy", source = "operator")
     @Mapping(target = "reviewedBy", ignore = true)

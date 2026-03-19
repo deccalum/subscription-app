@@ -6,7 +6,11 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import java.util.Locale;
+import org.springdoc.core.customizers.GlobalOperationCustomizer;
 import org.springdoc.core.models.GroupedOpenApi;
+import org.springframework.context.MessageSource;
+import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -38,5 +42,27 @@ public class SwaggerConfig {
                 .group("subscription-api-public")
                 .pathsToMatch("/api/v1/**")
                 .build();
+    }
+
+    @Bean
+    public GlobalOperationCustomizer messageSourceOperationCustomizer(MessageSource messageSource) {
+        return (operation, handlerMethod) -> {
+            operation.setSummary(resolveMessageKey(messageSource, operation.getSummary()));
+            operation.setDescription(resolveMessageKey(messageSource, operation.getDescription()));
+            return operation;
+        };
+    }
+
+    private String resolveMessageKey(MessageSource messageSource, String value) {
+        if (value == null || !value.startsWith("{") || !value.endsWith("}")) {
+            return value;
+        }
+
+        String key = value.substring(1, value.length() - 1);
+        try {
+            return messageSource.getMessage(key, null, Locale.ENGLISH);
+        } catch (NoSuchMessageException ignored) {
+            return value;
+        }
     }
 }

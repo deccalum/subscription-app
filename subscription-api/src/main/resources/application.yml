@@ -1,6 +1,8 @@
 spring:
   application:
     name: subscription-api
+  messages:
+    basename: ApiMessages
   main:
     log-startup-info: false
     banner-mode: off

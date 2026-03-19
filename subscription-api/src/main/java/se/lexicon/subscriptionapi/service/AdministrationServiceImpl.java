@@ -14,7 +14,6 @@ import se.lexicon.subscriptionapi.mapper.RequestMapper;
 import se.lexicon.subscriptionapi.repository.ChangeRequestRepository;
 import se.lexicon.subscriptionapi.repository.UserRepository;
 
-
 @Service @RequiredArgsConstructor
 public class AdministrationServiceImpl implements AdministrationService {
     private final ChangeRequestRepository changeRequestRepository;

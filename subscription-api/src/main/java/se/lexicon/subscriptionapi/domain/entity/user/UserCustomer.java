@@ -8,17 +8,19 @@ import se.lexicon.subscriptionapi.domain.entity.User;
 
 @Entity
 @DiscriminatorValue("CUSTOMER")
-@Getter @Setter
-@NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserCustomer extends User {
     // extend id somehow
     // @Override
     // public Long id
 
-    @Column(nullable = false)
+    @Column
     private String address;
 
-    @Column(nullable = false)
+    @Column
     private String phoneNumber;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
