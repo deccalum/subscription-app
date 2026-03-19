@@ -8,8 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import se.lexicon.subscriptionapi.domain.constant.PlanStatus;
 import se.lexicon.subscriptionapi.domain.entity.Plan;
-import se.lexicon.subscriptionapi.domain.entity.PlanCellular;
-import se.lexicon.subscriptionapi.domain.entity.PlanInternet;
+import se.lexicon.subscriptionapi.domain.entity.plan.PlanCellular;
+import se.lexicon.subscriptionapi.domain.entity.plan.PlanInternet;
 
 
 @Repository

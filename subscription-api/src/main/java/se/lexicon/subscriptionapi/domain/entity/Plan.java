@@ -12,8 +12,7 @@ import se.lexicon.subscriptionapi.domain.constant.PlanStatus;
 @DiscriminatorColumn(name = "plan_kind")
 @Table(name = "plans")
 public abstract class Plan {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
     @Enumerated(EnumType.STRING)
@@ -29,6 +28,8 @@ public abstract class Plan {
 
     @Column(nullable = false)
     private BigDecimal price;
+
+    // difference month cost from one-time fee, if applicable
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

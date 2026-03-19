@@ -3,12 +3,14 @@ package se.lexicon.subscriptionapi.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.mapstruct.BeanMapping;
+import org.mapstruct.ReportingPolicy;
 import org.mapstruct.SubclassMapping;
 import se.lexicon.subscriptionapi.domain.entity.Operator;
 import se.lexicon.subscriptionapi.domain.entity.Plan;
-import se.lexicon.subscriptionapi.domain.entity.PlanCellular;
-import se.lexicon.subscriptionapi.domain.entity.PlanInternet;
-import se.lexicon.subscriptionapi.domain.entity.PlanSatellite;
+import se.lexicon.subscriptionapi.domain.entity.plan.PlanCellular;
+import se.lexicon.subscriptionapi.domain.entity.plan.PlanInternet;
+import se.lexicon.subscriptionapi.domain.entity.plan.PlanSatellite;
 import se.lexicon.subscriptionapi.dto.request.PlanRequest;
 import se.lexicon.subscriptionapi.dto.response.PlanResponse;
 
@@ -54,6 +56,10 @@ public interface PlanMapper {
     @Mapping(target = "name", source = "request.name")
     @Mapping(target = "price", source = "request.price")
     @Mapping(target = "status", source = "request.status")
+    @Mapping(target = "networkGeneration", source = "request.networkGeneration")
+    @Mapping(target = "dataLimitGb", source = "request.dataLimitGb")
+    @Mapping(target = "callCostPerMinute", source = "request.callCostPerMinute")
+    @Mapping(target = "smsCostPerMessage", source = "request.smsCostPerMessage")
     PlanCellular updateCellular(PlanRequest request, @MappingTarget PlanCellular plan, Operator operator);
 
     /**
@@ -68,16 +74,43 @@ public interface PlanMapper {
     @Mapping(target = "name", source = "request.name")
     @Mapping(target = "price", source = "request.price")
     @Mapping(target = "status", source = "request.status")
+    @Mapping(target = "coverage", ignore = true)
+    @Mapping(target = "frequencyBand", ignore = true)
     PlanSatellite updateSatellite(PlanRequest request, @MappingTarget PlanSatellite plan, Operator operator);
 
     /**
      * Converts a Plan entity to a PlanResponse DTO.
-     * This method uses subclass mappings to handle different Plan types.
-     * @param plan The Plan entity to be converted.
-     * @return The corresponding PlanResponse DTO.
+     * Dispatches to the correct subclass method via @SubclassMapping.
      */
+    @BeanMapping(unmappedTargetPolicy = ReportingPolicy.IGNORE)
     @SubclassMapping(source = PlanInternet.class, target = PlanResponse.class)
     @SubclassMapping(source = PlanCellular.class, target = PlanResponse.class)
     @SubclassMapping(source = PlanSatellite.class, target = PlanResponse.class)
     PlanResponse toResponse(Plan plan);
+
+    @Mapping(target = "uploadSpeedMbps", source = "speed.upload")
+    @Mapping(target = "downloadSpeedMbps", source = "speed.download")
+    @Mapping(target = "networkGeneration", ignore = true)
+    @Mapping(target = "dataLimitGb", ignore = true)
+    @Mapping(target = "callCostPerMinute", ignore = true)
+    @Mapping(target = "smsCostPerMessage", ignore = true)
+    @Mapping(target = "coverage", ignore = true)
+    @Mapping(target = "frequencyBand", ignore = true)
+    PlanResponse toResponse(PlanInternet plan);
+
+    @Mapping(target = "uploadSpeedMbps", ignore = true)
+    @Mapping(target = "downloadSpeedMbps", ignore = true)
+    @Mapping(target = "coverage", ignore = true)
+    @Mapping(target = "frequencyBand", ignore = true)
+    PlanResponse toResponse(PlanCellular plan);
+
+    @Mapping(target = "uploadSpeedMbps", ignore = true)
+    @Mapping(target = "downloadSpeedMbps", ignore = true)
+    @Mapping(target = "networkGeneration", ignore = true)
+    @Mapping(target = "dataLimitGb", ignore = true)
+    @Mapping(target = "callCostPerMinute", ignore = true)
+    @Mapping(target = "smsCostPerMessage", ignore = true)
+    @Mapping(target = "coverage", source = "coverage")
+    @Mapping(target = "frequencyBand", source = "frequencyBand")
+    PlanResponse toResponse(PlanSatellite plan);
 }

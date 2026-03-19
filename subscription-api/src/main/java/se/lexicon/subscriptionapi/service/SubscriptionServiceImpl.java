@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import se.lexicon.subscriptionapi.dto.request.SubscriptionRequest;
 import se.lexicon.subscriptionapi.dto.response.SubscriptionResponse;
 import se.lexicon.subscriptionapi.mapper.SubscriptionMapper;
-import se.lexicon.subscriptionapi.repository.CustomerRepository;
+import se.lexicon.subscriptionapi.repository.UserRepository;
 import se.lexicon.subscriptionapi.repository.PlanRepository;
 import se.lexicon.subscriptionapi.repository.SubscriptionRepository;
 
@@ -16,7 +16,7 @@ import se.lexicon.subscriptionapi.repository.SubscriptionRepository;
 public class SubscriptionServiceImpl implements SubscriptionService {
     private final SubscriptionRepository subscriptionRepository;
     private final PlanRepository planRepository;
-    private final CustomerRepository customerRepository;
+    private final UserRepository userRepository;
     private final SubscriptionMapper subscriptionMapper;
 
     @Override
@@ -24,7 +24,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public SubscriptionResponse create(SubscriptionRequest request) {
         return planRepository.findById(request.planId())
                 .filter(plan -> plan.getOperator().getId().equals(request.operatorId()))
-                .flatMap(plan -> customerRepository.findById(request.customerId()).map(customer -> subscriptionMapper.toEntity(request, plan, customer)))
+                .flatMap(plan -> userRepository.findById(request.userId()).map(user -> subscriptionMapper.toEntity(request, plan, user)))
                 .map(subscriptionRepository::save)
                 .map(subscriptionMapper::toResponse)
                 .orElse(null);
@@ -63,8 +63,8 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 
     @Override
     @Transactional
-    public List<SubscriptionResponse> getCustomerId(Long customerId) {
-        return subscriptionRepository.findByCustomerId(customerId).stream().map(subscriptionMapper::toResponse).toList();
+    public List<SubscriptionResponse> getUserId(Long userId) {
+        return subscriptionRepository.findByUserId(userId).stream().map(subscriptionMapper::toResponse).toList();
     }
 
     @Override

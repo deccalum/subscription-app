@@ -7,11 +7,11 @@ import se.lexicon.subscriptionapi.domain.constant.SubscriptionStatus;
 public record SubscriptionResponse(
         Long id,
         Long operatorId,
-        Long customerId,
+        Long userId,
         Long planId,
         String planName,
         BigDecimal planPrice,
         SubscriptionStatus status,
-        Instant subscribedAt,
-        Instant cancelledAt
+        Instant writeInstant,
+        Instant cancelInstant
 ) {}

@@ -2,9 +2,9 @@ package se.lexicon.subscriptionapi.domain.constant;
 
 import java.util.function.Supplier;
 import se.lexicon.subscriptionapi.domain.entity.Plan;
-import se.lexicon.subscriptionapi.domain.entity.PlanCellular;
-import se.lexicon.subscriptionapi.domain.entity.PlanInternet;
-import se.lexicon.subscriptionapi.domain.entity.PlanSatellite;
+import se.lexicon.subscriptionapi.domain.entity.plan.PlanCellular;
+import se.lexicon.subscriptionapi.domain.entity.plan.PlanInternet;
+import se.lexicon.subscriptionapi.domain.entity.plan.PlanSatellite;
 
 public enum PlanKind {
     INTERNET(PlanInternet::new),
@@ -12,6 +12,10 @@ public enum PlanKind {
     SATELLITE(PlanSatellite::new);
 
     private final Supplier<Plan> factory;
-    PlanKind(Supplier<Plan> factory) { this.factory = factory; }
-    public Plan create() { return factory.get(); }
+    PlanKind(Supplier<Plan> factory) {
+        this.factory = factory;
+    }
+    public Plan create() {
+        return factory.get();
+    }
 }

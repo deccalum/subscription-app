@@ -12,6 +12,6 @@ public interface SubscriptionService {
     void delete(Long id);
 
     List<SubscriptionResponse> getAll();
-    List<SubscriptionResponse> getCustomerId(Long customerId);
+    List<SubscriptionResponse> getUserId(Long userId);
     List<SubscriptionResponse> getStatus(SubscriptionRequest request);
 }

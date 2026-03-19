@@ -2,6 +2,7 @@ package se.lexicon.subscriptionapi.dto.response;
 
 import java.math.BigDecimal;
 
+import se.lexicon.subscriptionapi.domain.constant.NetworkGeneration;
 import se.lexicon.subscriptionapi.domain.constant.PlanKind;
 import se.lexicon.subscriptionapi.domain.constant.PlanStatus;
 
@@ -12,12 +13,15 @@ public record PlanResponse(
         OperatorResponse operator,
         BigDecimal price,
         PlanStatus status,
-        // Internet
+        // Internet-specific
         Integer uploadSpeedMbps,
         Integer downloadSpeedMbps,
-        // Cellular
-        String networkGeneration,
+        // Cellular-specific
+        NetworkGeneration networkGeneration,
         Integer dataLimitGb,
         BigDecimal callCostPerMinute,
-        BigDecimal smsCostPerMessage
+        BigDecimal smsCostPerMessage,
+        // Satellite-specific
+        String coverage,
+        String frequencyBand
 ) {}

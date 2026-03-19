@@ -6,13 +6,12 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import se.lexicon.subscriptionapi.domain.constant.SubscriptionStatus;
 
-@Getter
-@Setter
+
+@Getter @Setter
 @Entity
 @Table(name = "subscriptions")
 public class Subscription {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -20,17 +19,17 @@ public class Subscription {
     private Plan plan;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
-
-    @Column(nullable = false, updatable = false)
-    @CreationTimestamp
-    private Instant subscribedAt;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private SubscriptionStatus status;
 
-    @Column
-    private Instant cancelledAt;
+    @Column(nullable = false, updatable = false, name = "write_instant")
+    @CreationTimestamp
+    private Instant writeInstant;
+
+    @Column(name = "cancel_instant")
+    private Instant cancelInstant;
 }

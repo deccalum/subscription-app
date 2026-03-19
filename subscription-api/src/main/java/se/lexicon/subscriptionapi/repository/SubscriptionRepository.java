@@ -8,9 +8,9 @@ import se.lexicon.subscriptionapi.domain.entity.Subscription;
 
 @Repository
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
-    List<Subscription> findByCustomerFirstNameIgnoreCaseOrCustomerLastNameIgnoreCase(String firstName, String lastName);
-    List<Subscription> findByCustomerId(Long customerId);
+    List<Subscription> findByUserFirstNameIgnoreCaseOrUserLastNameIgnoreCase(String firstName, String lastName);
+    List<Subscription> findByUserId(Long userId);
     List<Subscription> findByStatus(SubscriptionStatus status);
-    List<Subscription> findByCustomerIdAndStatus(Long customerId, SubscriptionStatus status);
+    List<Subscription> findByUserIdAndStatus(Long userId, SubscriptionStatus status);
     long count();
 }
