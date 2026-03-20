@@ -6,6 +6,8 @@ target/
 
 subscription-api/.clang-format
 .mvn/
+*.log
+*.tmp
 
 ### IntelliJ IDEA ###
 .idea/

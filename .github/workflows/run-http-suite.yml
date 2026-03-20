@@ -12,11 +12,40 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Run HTTP test suite PowerShell script
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Build subscription-api
         shell: pwsh
         run: |
-          Write-Host "Running run-http-suite.ps1 on runner..."
-          pwsh -NoProfile -ExecutionPolicy Bypass -File .\subscription-api\scripts\run-http-suite.ps1 *> run-http-suite.log
+          mvn -B -pl subscription-api -am -DskipTests package
+
+      - name: Start Spring Boot app (background) and wait for readiness
+        shell: pwsh
+        run: |
+          $proc = Start-Process -FilePath mvn -ArgumentList '-pl','subscription-api','spring-boot:run' -NoNewWindow -PassThru
+          Write-Host "Started Spring Boot process Id=$($proc.Id)"
+          $deadline = (Get-Date).AddSeconds(120)
+          while ((Get-Date) -lt $deadline) {
+            try {
+              $res = Test-NetConnection -ComputerName 'localhost' -Port 8080 -WarningAction SilentlyContinue -InformationAction SilentlyContinue
+              if ($res.TcpTestSucceeded) { Write-Host 'Application is listening on localhost:8080' -ForegroundColor Green; break }
+            } catch {}
+            Start-Sleep -Seconds 2
+          }
+          if (-not $res.TcpTestSucceeded) {
+            Write-Host 'Application did not become ready in time; printing process info and failing step' -ForegroundColor Red
+            $proc | Format-List | Write-Host
+            Exit 1
+          }
+
+      - name: Run HTTP suite
+        shell: pwsh
+        run: |
+          & .\subscription-api\scripts\run-http-suite.ps1 | Tee-Object -FilePath run-http-suite.log
 
       - name: Upload run log
         uses: actions/upload-artifact@v4

@@ -3,6 +3,11 @@
 # Usage: powershell -ExecutionPolicy Bypass -File .\scripts\run-http-suite.ps1
 
 $ErrorActionPreference = 'Stop'
+$VerbosePreference = 'Continue'
+
+# Capture a transcript of the run for richer CI artifacts
+$LogFile = Join-Path $PSScriptRoot 'run-http-suite-output.log'
+try { Start-Transcript -Path $LogFile -Force -ErrorAction SilentlyContinue } catch {}
 
 $baseUrl = 'http://localhost:8080'
 $suffix = [guid]::NewGuid().ToString()
@@ -39,8 +44,53 @@ function Invoke-JsonRequest {
     }
     catch {
         Write-Host "ERROR: $($_.Exception.Message)" -ForegroundColor Red
+        if ($_.Exception.Response) {
+            try { $_.Exception.Response | Format-List | Out-String | Write-Host -ForegroundColor Yellow } catch {}
+        }
         return $null
     }
+}
+
+function Wait-ForPortOpen {
+    param(
+        [Parameter(Mandatory = $true)] [string] $Host,
+        [Parameter(Mandatory = $true)] [int] $Port,
+        [int] $TimeoutSeconds = 120
+    )
+
+    $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
+    while ((Get-Date) -lt $deadline) {
+        try {
+            $tcp = New-Object System.Net.Sockets.TcpClient
+            $async = $tcp.BeginConnect($Host, $Port, $null, $null)
+            $wait = $async.AsyncWaitHandle.WaitOne(2000)
+            if ($wait -and $tcp.Connected) {
+                $tcp.EndConnect($async)
+                $tcp.Close()
+                Write-Host "Port $Port on $Host is open." -ForegroundColor Green
+                return $true
+            }
+            $tcp.Close()
+        }
+        catch {
+            # ignore and retry
+        }
+        Start-Sleep -Seconds 2
+    }
+    throw "Timed out waiting for $Host:$Port to be open after $TimeoutSeconds seconds"
+}
+
+# Ensure the application is listening before starting the test sequence
+try {
+    $uri = [uri]$baseUrl
+    $hostToCheck = $uri.Host
+    $portToCheck = $uri.Port
+    Write-Host "Waiting for $hostToCheck:$portToCheck to accept connections..." -ForegroundColor Cyan
+    Wait-ForPortOpen -Host $hostToCheck -Port $portToCheck -TimeoutSeconds 120
+}
+catch {
+    Write-Host "Warning: readiness check failed: $($_.Exception.Message)" -ForegroundColor Yellow
+    Write-Host "Proceeding anyway; tests may fail if the app is not up." -ForegroundColor Yellow
 }
 
 Write-Host "Starting HTTP test run with suffix: $suffix" -ForegroundColor Green
