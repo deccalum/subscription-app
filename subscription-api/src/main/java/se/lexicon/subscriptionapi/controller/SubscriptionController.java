@@ -23,10 +23,7 @@ import se.lexicon.subscriptionapi.dto.request.SubscriptionRequest;
 import se.lexicon.subscriptionapi.dto.response.SubscriptionResponse;
 import se.lexicon.subscriptionapi.service.SubscriptionService;
 
-@Tag(
-    name = "Subscriptions",
-    description = "Subscription management endpoints."
-)
+@Tag(name = "Subscriptions", description = "Subscription management endpoints.")
 @RestController
 @RequestMapping("/api/v1/subscriptions")
 @RequiredArgsConstructor
@@ -35,93 +32,69 @@ public class SubscriptionController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('OPERATOR', 'ADMIN')")
-    @Operation(
-        summary = "{api.subscription.create.summary}",
-        description = "{api.subscription.create.description}",
-        security = @SecurityRequirement(name = "bearerAuth")
-    )
+    @Operation(summary = "{api.subscription.create.summary}", description = "{api.subscription.create.description}", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<SubscriptionResponse> create(@Valid @RequestBody SubscriptionRequest request) {
-
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(subscription.create(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(subscription.create(request));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER', 'OPERATOR', 'ADMIN')")
-    @Operation(
-        summary = "{api.subscription.read.summary}",
-        description = "{api.subscription.read.description}",
-        security = @SecurityRequirement(name = "bearerAuth")
-    )
+    @Operation(summary = "{api.subscription.read.summary}", description = "{api.subscription.read.description}", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<SubscriptionResponse> read(@PathVariable Long id) {
-
-        return ResponseEntity
-            .ok(subscription.read(id));
+        return ResponseEntity.ok(subscription.read(id));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('OPERATOR', 'ADMIN')")
-    @Operation(
-        summary = "{api.subscription.update.summary}",
-        description = "{api.subscription.update.description}",
-        security = @SecurityRequirement(name = "bearerAuth")
-    )
+    @Operation(summary = "{api.subscription.update.summary}", description = "{api.subscription.update.description}", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<SubscriptionResponse> update(@PathVariable Long id, @Valid @RequestBody SubscriptionRequest request) {
-
-        return ResponseEntity
-            .ok(subscription.update(id, request));
+        return ResponseEntity.ok(subscription.update(id, request));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('OPERATOR', 'ADMIN')")
-    @Operation(
-        summary = "{api.subscription.delete.summary}",
-        description = "{api.subscription.delete.description}",
-        security = @SecurityRequirement(name = "bearerAuth")
-    )
+    @Operation(summary = "{api.subscription.delete.summary}", description = "{api.subscription.delete.description}", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-
         subscription.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('USER', 'OPERATOR', 'ADMIN')")
-    @Operation(
-        summary = "{api.subscription.getAll.summary}",
-        description = "{api.subscription.getAll.description}",
-        security = @SecurityRequirement(name = "bearerAuth")
-    )
+    @Operation(summary = "{api.subscription.getAll.summary}", description = "{api.subscription.getAll.description}", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<List<SubscriptionResponse>> getAll() {
-
-        return ResponseEntity
-            .ok(subscription.getAll());
+        return ResponseEntity.ok(subscription.getAll());
     }
 
     @GetMapping("/user/{userId}")
     @PreAuthorize("hasAnyRole('USER', 'OPERATOR', 'ADMIN')")
-    @Operation(
-        summary = "{api.subscription.getUserId.summary}",
-        description = "{api.subscription.getUserId.description}",
-        security = @SecurityRequirement(name = "bearerAuth")
-    )
+    @Operation(summary = "{api.subscription.getUserId.summary}", description = "{api.subscription.getUserId.description}", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<List<SubscriptionResponse>> getUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok(subscription.getUserId(userId));
+    }
 
-        return ResponseEntity
-            .ok(subscription.getUserId(userId));
+    @GetMapping("/search/userName")
+    @PreAuthorize("hasAnyRole('USER', 'OPERATOR', 'ADMIN')")
+    public ResponseEntity<List<SubscriptionResponse>> findByUserName(@RequestParam String name) {
+        return ResponseEntity.ok(subscription.findByUserName(name));
+    }
+
+    @GetMapping("/user/{userId}/status")
+    @PreAuthorize("hasAnyRole('USER', 'OPERATOR', 'ADMIN')")
+    public ResponseEntity<List<SubscriptionResponse>> findByUserIdAndStatus(@PathVariable Long userId, @RequestParam SubscriptionStatus status) {
+        return ResponseEntity.ok(subscription.findByUserIdAndStatus(userId, status));
+    }
+
+    @GetMapping("/count")
+    @PreAuthorize("hasAnyRole('USER', 'OPERATOR', 'ADMIN')")
+    public ResponseEntity<Long> countSubscriptions() {
+        return ResponseEntity.ok(subscription.countSubscriptions());
     }
 
     @GetMapping("/status")
     @PreAuthorize("hasAnyRole('USER', 'OPERATOR', 'ADMIN')")
-    @Operation(
-        summary = "{api.subscription.getStatus.summary}",
-        description = "{api.subscription.getStatus.description}",
-        security = @SecurityRequirement(name = "bearerAuth")
-    )
+    @Operation(summary = "{api.subscription.getStatus.summary}", description = "{api.subscription.getStatus.description}", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<List<SubscriptionResponse>> getStatus(@RequestParam SubscriptionStatus status) {
-
-        return ResponseEntity
-            .ok(subscription.getStatus(status));
+        return ResponseEntity.ok(subscription.getStatus(status));
     }
 }

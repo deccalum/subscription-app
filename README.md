@@ -32,10 +32,10 @@ customized application.properties
 Switched to postgres. Added cloudbeaver to docker-compose for db review.
 
 ### Abstract Classes
-Plan -> Plans
-User -> Users
+Plan -> Plans(internet, cellular, satellite etc.)
+User -> Users(admin, operator, customer)
 
-### Renamings
+### Renamed
 Customer -> User
 
 ### Notes
@@ -52,6 +52,10 @@ Added a queued change-request workflow for operator-initiated admin actions:
 - Request model now tracks status (pending/approved/rejected), timestamps, operator reference, and request details.
 
 ### TODO
+
+#### admin 
+instead of seeder. use dev arg to auto-create+login admin user on startup for local development.
+- add command-line arg (e.g., `--dev`) to trigger dev-only setup logic
 
 #### ip related
 admin local-only login policy (larger security overhaul):

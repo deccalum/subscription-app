@@ -66,4 +66,22 @@ public class SubscriptionServiceImpl implements SubscriptionService {
     public List<SubscriptionResponse> getStatus(SubscriptionStatus status) {
         return subscriptionRepository.findByStatus(status).stream().map(subscriptionMapper::toResponse).toList();
     }
+
+    @Override
+    @Transactional
+    public List<SubscriptionResponse> findByUserName(String name) {
+        return subscriptionRepository.findByUserFirstNameIgnoreCaseOrUserLastNameIgnoreCase(name, name).stream().map(subscriptionMapper::toResponse).toList();
+    }
+
+    @Override
+    @Transactional
+    public List<SubscriptionResponse> findByUserIdAndStatus(Long userId, SubscriptionStatus status) {
+        return subscriptionRepository.findByUserIdAndStatus(userId, status).stream().map(subscriptionMapper::toResponse).toList();
+    }
+
+    @Override
+    @Transactional
+    public long countSubscriptions() {
+        return subscriptionRepository.count();
+    }
 }

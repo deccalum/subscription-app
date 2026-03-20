@@ -1,0 +1,25 @@
+name: Run HTTP Test Suite
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [ main ]
+
+jobs:
+  run-http-suite:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run HTTP test suite PowerShell script
+        shell: pwsh
+        run: |
+          Write-Host "Running run-http-suite.ps1 on runner..."
+          pwsh -NoProfile -ExecutionPolicy Bypass -File .\subscription-api\scripts\run-http-suite.ps1 *> run-http-suite.log
+
+      - name: Upload run log
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-http-suite-log
+          path: run-http-suite.log

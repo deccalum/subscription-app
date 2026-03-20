@@ -76,4 +76,10 @@ public class UserServiceImpl implements UserService {
     public UserResponse getName(String name) {
         return UserRepository.findByFirstNameIgnoreCase(name).map(UserMapper::toResponse).orElse(null);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existsByEmail(String email) {
+        return UserRepository.existsByEmail(email);
+    }
 }

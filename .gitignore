@@ -4,6 +4,9 @@ target/
 !**/src/test/**/target/
 .kotlin
 
+subscription-api/.clang-format
+.mvn/
+
 ### IntelliJ IDEA ###
 .idea/
 .idea/modules.xml
@@ -38,4 +41,3 @@ build/
 
 ### Mac OS ###
 .DS_Store
-subscription-api/.clang-format

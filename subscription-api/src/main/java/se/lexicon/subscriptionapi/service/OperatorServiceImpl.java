@@ -41,8 +41,26 @@ public class OperatorServiceImpl implements OperatorService {
         return operatorRepository.findByName(name).map(operatorMapper::toResponse).orElse(null);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public OperatorResponse getNameIgnoreCase(String name) {
+        return operatorRepository.findByNameIgnoreCase(name).map(operatorMapper::toResponse).orElse(null);
+    }
+
     @Override @Transactional(readOnly = true)
     public List<OperatorResponse> getAll() {
         return operatorRepository.findAll().stream().map(operatorMapper::toResponse).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existsByName(String name) {
+        return operatorRepository.existsByName(name);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existsByNameIgnoreCase(String name) {
+        return operatorRepository.existsByNameIgnoreCase(name);
     }
 }

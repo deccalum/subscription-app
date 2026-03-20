@@ -16,4 +16,6 @@ public interface UserService {
     UserResponse getCredentials(UserCredentials credential);
     UserResponse getEmail(String email);
     UserResponse getName(String name);
+
+    boolean existsByEmail(String email);
 }

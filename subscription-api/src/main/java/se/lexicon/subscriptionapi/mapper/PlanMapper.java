@@ -1,9 +1,9 @@
 package se.lexicon.subscriptionapi.mapper;
 
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.BeanMapping;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.SubclassMapping;
 import se.lexicon.subscriptionapi.domain.entity.Operator;
@@ -12,22 +12,27 @@ import se.lexicon.subscriptionapi.domain.entity.plan.PlanCellular;
 import se.lexicon.subscriptionapi.domain.entity.plan.PlanInternet;
 import se.lexicon.subscriptionapi.domain.entity.plan.PlanSatellite;
 import se.lexicon.subscriptionapi.dto.request.PlanRequest;
+import se.lexicon.subscriptionapi.dto.response.OperatorSummaryResponse;
 import se.lexicon.subscriptionapi.dto.response.PlanResponse;
+import se.lexicon.subscriptionapi.dto.response.PlanSummaryResponse;
+
 
 @Mapper(componentModel = "spring")
 public interface PlanMapper {
-
     /**
      * The Dispatcher: Routes the generic Plan to the specific subclass mapper.
      * This bypasses the SubclassMapping limitation for updates.
      */
     default Plan toEntity(PlanRequest request, @MappingTarget Plan plan, Operator operator) {
-        if (plan instanceof PlanInternet internet) return updateInternet(request, internet, operator);
-        if (plan instanceof PlanCellular cellular) return updateCellular(request, cellular, operator);
-        if (plan instanceof PlanSatellite satellite) return updateSatellite(request, satellite, operator);
+        if (plan instanceof PlanInternet internet)
+            return updateInternet(request, internet, operator);
+        if (plan instanceof PlanCellular cellular)
+            return updateCellular(request, cellular, operator);
+        if (plan instanceof PlanSatellite satellite)
+            return updateSatellite(request, satellite, operator);
         return plan;
     }
-    
+
     /**
      * Updates an existing PlanInternet entity with values from the given PlanRequest.
      * @param request The PlanRequest containing the new values.
@@ -113,4 +118,8 @@ public interface PlanMapper {
     @Mapping(target = "coverage", source = "coverage")
     @Mapping(target = "frequencyBand", source = "frequencyBand")
     PlanResponse toResponse(PlanSatellite plan);
+
+    OperatorSummaryResponse toOperatorSummaryResponse(Operator operator);
+
+    PlanSummaryResponse toSummaryResponse(Plan plan);
 }

@@ -14,7 +14,8 @@ import se.lexicon.subscriptionapi.mapper.RequestMapper;
 import se.lexicon.subscriptionapi.repository.ChangeRequestRepository;
 import se.lexicon.subscriptionapi.repository.UserRepository;
 
-@Service @RequiredArgsConstructor
+@Service
+@RequiredArgsConstructor
 public class AdministrationServiceImpl implements AdministrationService {
     private final ChangeRequestRepository changeRequestRepository;
     private final UserRepository userRepository;
@@ -23,7 +24,8 @@ public class AdministrationServiceImpl implements AdministrationService {
     private final SubscriptionService subscriptionService;
     private final RequestMapper requestMapper;
 
-    @Override @Transactional
+    @Override
+    @Transactional
     public ChangeRequestResponse approveRequest(Long id, String adminEmail) {
         return Optional.ofNullable(id)
                 .flatMap(changeRequestRepository::findById)
@@ -34,7 +36,8 @@ public class AdministrationServiceImpl implements AdministrationService {
                 .orElse(null);
     }
 
-    @Override @Transactional
+    @Override
+    @Transactional
     public ChangeRequestResponse rejectRequest(Long id, String reason, String adminEmail) {
         return Optional.ofNullable(id)
                 .flatMap(changeRequestRepository::findById)
@@ -44,19 +47,20 @@ public class AdministrationServiceImpl implements AdministrationService {
                 .orElse(null);
     }
 
-    @Override @Transactional(readOnly = true)
+    @Override
+    @Transactional(readOnly = true)
     public List<ChangeRequestResponse> getByStatus(RequestStatus status) {
         return changeRequestRepository.findByStatus(status).stream().map(requestMapper::toResponse).toList();
     }
 
-    @Override @Transactional(readOnly = true)
+    @Override
+    @Transactional(readOnly = true)
     public List<ChangeRequestResponse> getPending() {
         return getByStatus(RequestStatus.PENDING);
     }
 
-
     // --- PRIVATE UTILITY METHODS ---
-    
+
     private UserAdmin resolveAdmin(String email) {
         return Optional.ofNullable(email).flatMap(userRepository::findByEmail).filter(UserAdmin.class ::isInstance).map(UserAdmin.class ::cast).orElse(null);
     }

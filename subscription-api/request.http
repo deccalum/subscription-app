@@ -1,26 +1,567 @@
-### Base config
+### =============================================================
+### Base config and dynamic test data
+### =============================================================
 @baseUrl = http://localhost:8080
-@adminEmail = admin@example.com
-@adminPassword = password
-@token = {{loginAdmin.response.body.$.accessToken}}
+@suffix = {{$guid}}
 
-### 1) Login as seeded admin (from DataSeeder)
+@adminPassword = Password123!
+
+@userPassword = Password123!
+@operatorPassword = Password123!
+
+@adminEmail = admin_{{suffix}}@example.com
+@userEmail = user_{{suffix}}@example.com
+@operatorUserEmail = operator_{{suffix}}@example.com
+
+### IMPORTANT:
+### - Use "Send Request" above each request line (do not send arbitrary text selection).
+### - Run the whole Bootstrap section top-to-bottom once per session so dependent variables exist.
+### - `suffix` uses GUID so setup identities are unique on each run.
+
+### =============================================================
+### Bootstrap / Setup flow (run top-to-bottom once per session)
+### =============================================================
+
+### AUTH-SETUP-01: Register ROLE_ADMIN account for this test session
+# @name registerAdmin
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+    "id": null,
+    "credentials": "ROLE_ADMIN",
+    "email": "{{adminEmail}}",
+    "firstName": "Admin{{suffix}}",
+    "lastName": "Tester",
+    "password": "{{adminPassword}}",
+    "address": "Admin Street 1",
+    "phoneNumber": "+46100000001",
+    "preferences": "http-suite"
+}
+
+### AUTH-SETUP-01B: Login as bootstrap admin
 # @name loginAdmin
 POST {{baseUrl}}/api/v1/auth/login
 Content-Type: application/json
 
 {
-	"email": "{{adminEmail}}",
-	"password": "{{adminPassword}}"
+    "email": "{{registeredAdminEmail}}",
+    "password": "{{adminPassword}}"
 }
 
-### Test all user creations.
-### Test user credentials: 
-    ### user actions <-> non user actions
-    ### operator actions <-> non operator actions
-    ### admin actions <-> non admin actions
+### Derived tokens and ids from setup flow
+###
+@registeredAdminEmail = {{registerAdmin.response.body.$.email}}
+@registeredAdminId = {{registerAdmin.response.body.$.id}}
 
-### test updating, delete, read (all repo methods)
+@adminToken = {{loginAdmin.response.body.$.accessToken}}
+
+### AUTH-SETUP-02: Register ROLE_USER account (success)
+# @name registerUserRoleUser
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+    "id": null,
+    "credentials": "ROLE_USER",
+    "email": "{{userEmail}}",
+    "firstName": "User{{suffix}}",
+    "lastName": "Tester",
+    "password": "{{userPassword}}",
+    "address": "Test Street 1",
+    "phoneNumber": "+46123456789",
+    "preferences": "http-suite"
+}
+
+### Capture created id for follow-up requests
+###
+@userId = {{registerUserRoleUser.response.body.$.id}}
+@registeredUserEmail = {{registerUserRoleUser.response.body.$.email}}
+
+### AUTH-SETUP-03: Login as ROLE_USER
+# @name loginRoleUser
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{registeredUserEmail}}",
+    "password": "{{userPassword}}"
+}
+
+###
+@userToken = {{loginRoleUser.response.body.$.accessToken}}
+
+### AUTH-SETUP-04: Register ROLE_OPERATOR account (security principal)
+# @name registerUserRoleOperator
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+    "id": null,
+    "credentials": "ROLE_OPERATOR",
+    "email": "{{operatorUserEmail}}",
+    "firstName": "Operator{{suffix}}",
+    "lastName": "Tester",
+    "password": "{{operatorPassword}}",
+    "address": "Operator Street 1",
+    "phoneNumber": "+46111222333",
+    "preferences": "http-suite"
+}
+
+###
+@registeredOperatorEmail = {{registerUserRoleOperator.response.body.$.email}}
+
+### AUTH-SETUP-05: Login as ROLE_OPERATOR
+# @name loginRoleOperator
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{registeredOperatorEmail}}",
+    "password": "{{operatorPassword}}"
+}
+
+###
+@operatorToken = {{loginRoleOperator.response.body.$.accessToken}}
+
+### AUTH-SETUP-05B: Refresh admin token for admin-only setup calls
+# @name reloginAdminForSetup
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{registeredAdminEmail}}",
+    "password": "{{adminPassword}}"
+}
+
+###
+@adminToken = {{reloginAdminForSetup.response.body.$.accessToken}}
+
+### OPERATOR-SETUP-01: Create operator entity for plan/subscription tests
+# @name createOperatorSeed
+POST {{baseUrl}}/api/v1/operators
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+    "operator": null,
+    "name": "OperatorEntity{{suffix}}"
+}
+
+###
+@operatorEntityId = {{createOperatorSeed.response.body.$.id}}
+
+### PLAN-SETUP-01: Create plan for subscription tests
+# @name createPlanSeed
+POST {{baseUrl}}/api/v1/plans
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+    "kind": "INTERNET",
+    "name": "PlanSeed{{suffix}}",
+    "operator": {{operatorEntityId}},
+    "price": 199.00,
+    "status": "ACTIVE",
+    "uploadSpeedMbps": 100,
+    "downloadSpeedMbps": 500,
+    "networkGeneration": null,
+    "dataLimitGb": null,
+    "callCostPerMinute": null,
+    "smsCostPerMessage": null
+}
+
+###
+@planId = {{createPlanSeed.response.body.$.id}}
+
+### SUBSCRIPTION-SETUP-01: Create subscription seed
+# @name createSubscriptionSeed
+POST {{baseUrl}}/api/v1/subscriptions
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+    "operatorId": {{operatorEntityId}},
+    "planId": {{planId}},
+    "userId": {{userId}},
+    "status": "ACTIVE"
+}
+
+###
+@subscriptionId = {{createSubscriptionSeed.response.body.$.id}}
+
+### =============================================================
+### AUTH endpoint tests
+### =============================================================
+
+### AUTH-01 SUCCESS: login (admin)
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{registeredAdminEmail}}",
+    "password": "{{adminPassword}}"
+}
+
+### AUTH-02 FAIL: login invalid credentials
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{registeredAdminEmail}}",
+    "password": "wrong-password"
+}
+
+### AUTH-03 FAIL: login invalid DTO (email format)
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email": "not-an-email",
+    "password": "password"
+}
+
+### AUTH-04 SUCCESS: register ROLE_USER
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+    "id": null,
+    "credentials": "ROLE_USER",
+    "email": "user_extra_{{suffix}}@example.com",
+    "firstName": "ExtraUser",
+    "lastName": "Tester",
+    "password": "Password123!",
+    "address": "Example Road 1",
+    "phoneNumber": "+46000000001",
+    "preferences": "from-auth-register"
+}
+
+### AUTH-05 FAIL: register duplicate email
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+    "id": null,
+    "credentials": "ROLE_USER",
+    "email": "{{registeredUserEmail}}",
+    "firstName": "Duplicate",
+    "lastName": "User",
+    "password": "Password123!",
+    "address": "Example Road 2",
+    "phoneNumber": "+46000000002",
+    "preferences": "duplicate"
+}
+
+### AUTH-06 FAIL: register invalid DTO (blank firstName + short password)
+POST {{baseUrl}}/api/v1/auth/register
+Content-Type: application/json
+
+{
+    "id": null,
+    "credentials": "ROLE_USER",
+    "email": "invalid_{{suffix}}@example.com",
+    "firstName": "",
+    "lastName": "User",
+    "password": "short",
+    "address": "Example Road 3",
+    "phoneNumber": "ABC",
+    "preferences": "invalid"
+}
+
+### AUTH-07 SUCCESS: logout with valid token
+POST {{baseUrl}}/api/v1/auth/logout
+Authorization: Bearer {{reloginAdminForSetup.response.body.$.accessToken}}
+
+### AUTH-08 FAIL: logout missing token
+POST {{baseUrl}}/api/v1/auth/logout
+
+### AUTH-SETUP-06: Refresh admin token after logout tests
+# @name reloginAdminAfterLogout
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{registeredAdminEmail}}",
+    "password": "{{adminPassword}}"
+}
+
+###
+@adminToken = {{reloginAdminAfterLogout.response.body.$.accessToken}}
+
+### =============================================================
+### USER service endpoint tests
+### Covers: create/read/update/delete/getAll/getCredentials/getEmail/getName
+### =============================================================
+
+### USER-01 SUCCESS: create (public)
+# @name createUserA
+POST {{baseUrl}}/api/v1/Users
+Content-Type: application/json
+
+{
+    "id": null,
+    "credentials": "ROLE_USER",
+    "email": "user_a_{{suffix}}@example.com",
+    "firstName": "UserA",
+    "lastName": "Http",
+    "password": "Password123!",
+    "address": "User Street 10",
+    "phoneNumber": "+46000001010",
+    "preferences": "A"
+}
+
+###
+@userAId = {{createUserA.response.body.$.id}}
+
+@userAEmail = {{createUserA.response.body.$.email}}
+
+### USER-02B DIRECT: login created userA using response path (no intermediate var)
+# @name loginUserA_direct
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{createUserA.response.body.$.email}}",
+    "password": "Password123!"
+}
+
+@userAToken = {{loginUserA_direct.response.body.$.accessToken}}
+
+### -----------------------------------------------------------------
+### ADDITIONAL USER TESTS (create/update/delete + success/fail)
+### -----------------------------------------------------------------
+
+### USER-02 SUCCESS: login created userA
+# @name loginUserA
+POST {{baseUrl}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+    "email": "{{userAEmail}}",
+    "password": "Password123!"
+}
+
+@userAToken = {{loginUserA.response.body.$.accessToken}}
+
+### USER-03 SUCCESS: update userA (change address, phone)
+PUT {{baseUrl}}/api/v1/Users/{{userAId}}
+Content-Type: application/json
+Authorization: Bearer {{userAToken}}
+
+{
+    "id": {{userAId}},
+    "credentials": "ROLE_USER",
+    "email": "user_a_{{suffix}}@example.com",
+    "firstName": "UserA-Updated",
+    "lastName": "Http",
+    "password": "Password123!",
+    "address": "User Street 11",
+    "phoneNumber": "+46000001011",
+    "preferences": "A-updated"
+}
+
+### USER-04 FAIL: update userA invalid payload (blank firstName)
+PUT {{baseUrl}}/api/v1/Users/{{userAId}}
+Content-Type: application/json
+Authorization: Bearer {{userAToken}}
+
+{
+    "id": {{userAId}},
+    "credentials": "ROLE_USER",
+    "email": "user_a_{{suffix}}@example.com",
+    "firstName": "",
+    "lastName": "Http",
+    "password": "Password123!",
+    "address": "User Street 11",
+    "phoneNumber": "+46000001011",
+    "preferences": "A-updated"
+}
+
+### USER-05 SUCCESS: delete userA
+DELETE {{baseUrl}}/api/v1/Users/{{userAId}}
+Authorization: Bearer {{userAToken}}
+
+### USER-06 FAIL: read deleted userA -> should be 404
+GET {{baseUrl}}/api/v1/Users/{{userAId}}
+Authorization: Bearer {{adminToken}}
 
 
-### duplicate all tests into /test
+### -----------------------------------------------------------------
+### OPERATOR TESTS (create/update/delete + success/fail)
+### -----------------------------------------------------------------
+
+### OPERATOR-01 FAIL: create operator with missing name (bad DTO)
+# @name createOperatorFail
+POST {{baseUrl}}/api/v1/operators
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+    "operator": null,
+    "name": ""
+}
+
+### OPERATOR-02 SUCCESS: create operator (admin) — also used earlier as seed
+POST {{baseUrl}}/api/v1/operators
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+    "operator": null,
+    "name": "OperatorForTests{{suffix}}"
+}
+
+@operatorForTestsId = {{createOperatorFail.response.body.$.id}}
+
+### OPERATOR-03 SUCCESS: update operator name
+PUT {{baseUrl}}/api/v1/operators/{{operatorForTestsId}}
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+    "operator": {{operatorForTestsId}},
+    "name": "OperatorForTestsRenamed{{suffix}}"
+}
+
+### OPERATOR-04 FAIL: update operator invalid payload (blank name)
+PUT {{baseUrl}}/api/v1/operators/{{operatorForTestsId}}
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+    "operator": {{operatorForTestsId}},
+    "name": ""
+}
+
+### OPERATOR-05 SUCCESS: delete operator
+DELETE {{baseUrl}}/api/v1/operators/{{operatorForTestsId}}
+Authorization: Bearer {{adminToken}}
+
+
+### -----------------------------------------------------------------
+### SUBSCRIPTION TESTS (add subscription to user + success/fail) 
+### -----------------------------------------------------------------
+
+### SUBS-01 FAIL: create subscription with invalid userId
+POST {{baseUrl}}/api/v1/subscriptions
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+    "operatorId": 99999999,
+    "planId": 99999999,
+    "userId": 99999999,
+    "status": "ACTIVE"
+}
+
+### SUBS-02 SUCCESS: create subscription (using earlier created user and plan)
+POST {{baseUrl}}/api/v1/subscriptions
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+    "operatorId": {{operatorEntityId}},
+    "planId": {{planId}},
+    "userId": {{userId}},
+    "status": "ACTIVE"
+}
+
+@newSubscriptionId = {{createSubscriptionSeed.response.body.$.id}}
+
+### SUBS-03 SUCCESS: get subscriptions for user
+GET {{baseUrl}}/api/v1/subscriptions/user/{{userId}}
+Authorization: Bearer {{userToken}}
+
+### SUBS-04 SUCCESS: get subscriptions by status
+GET {{baseUrl}}/api/v1/subscriptions/status?status=ACTIVE
+Authorization: Bearer {{adminToken}}
+
+### =============================================================
+### Repository-backed endpoint tests (success + failure cases)
+### - Plan endpoints
+### =============================================================
+
+### PLAN-REPO-01 SUCCESS: find plan by name
+GET {{baseUrl}}/api/v1/plans/name/PlanSeed{{suffix}}
+Authorization: Bearer {{adminToken}}
+
+### PLAN-REPO-02 FAIL: find plan by name (not found)
+GET {{baseUrl}}/api/v1/plans/name/NoSuchPlan{{suffix}}
+Authorization: Bearer {{adminToken}}
+
+### PLAN-REPO-03 SUCCESS: find plans by operator id
+GET {{baseUrl}}/api/v1/plans/operator/{{operatorEntityId}}
+Authorization: Bearer {{adminToken}}
+
+### PLAN-REPO-04 SUCCESS: find plans by price range
+GET {{baseUrl}}/api/v1/plans/price?min=100&max=300
+Authorization: Bearer {{adminToken}}
+
+### PLAN-REPO-05 SUCCESS: find plans by status
+GET {{baseUrl}}/api/v1/plans/status?status=ACTIVE
+Authorization: Bearer {{adminToken}}
+
+### PLAN-REPO-06 SUCCESS: list internet plans
+GET {{baseUrl}}/api/v1/plans/internet
+Authorization: Bearer {{adminToken}}
+
+### PLAN-REPO-07 SUCCESS: list cellular plans
+GET {{baseUrl}}/api/v1/plans/cellular
+Authorization: Bearer {{adminToken}}
+
+### PLAN-REPO-08 SUCCESS: exists by operator id
+GET {{baseUrl}}/api/v1/plans/exists/operator/{{operatorEntityId}}
+Authorization: Bearer {{adminToken}}
+
+### PLAN-REPO-09 SUCCESS: count by operator id and status
+GET {{baseUrl}}/api/v1/plans/count/operator/{{operatorEntityId}}?status=ACTIVE
+Authorization: Bearer {{adminToken}}
+
+### =============================================================
+### - Operator endpoints
+### =============================================================
+
+### OP-REPO-01 SUCCESS: find operator by name (ignore case)
+GET {{baseUrl}}/api/v1/operators/search/ignorecase?name=OperatorEntity{{suffix}}
+Authorization: Bearer {{adminToken}}
+
+### OP-REPO-02 SUCCESS: exists by name
+GET {{baseUrl}}/api/v1/operators/exists?name=OperatorEntity{{suffix}}
+Authorization: Bearer {{adminToken}}
+
+### OP-REPO-03 SUCCESS: exists by name (ignore case)
+GET {{baseUrl}}/api/v1/operators/exists/ignorecase?name=operatorentity{{suffix}}
+Authorization: Bearer {{adminToken}}
+
+### =============================================================
+### - Subscription endpoints
+### =============================================================
+
+### SUB-REPO-01 SUCCESS: find subscriptions by user first/last name (ignore case)
+GET {{baseUrl}}/api/v1/subscriptions/search/userName?name=User{{suffix}}
+Authorization: Bearer {{adminToken}}
+
+### SUB-REPO-02 SUCCESS: find subscriptions by user id and status
+GET {{baseUrl}}/api/v1/subscriptions/user/{{userId}}/status?status=ACTIVE
+Authorization: Bearer {{adminToken}}
+
+### SUB-REPO-03 SUCCESS: subscriptions count
+GET {{baseUrl}}/api/v1/subscriptions/count
+Authorization: Bearer {{adminToken}}
+
+### =============================================================
+### - User endpoints
+### =============================================================
+
+### USER-REPO-01 SUCCESS: exists by email (should be true)
+GET {{baseUrl}}/api/v1/Users/exists?email={{registeredUserEmail}}
+Authorization: Bearer {{adminToken}}
+
+### USER-REPO-02 FAIL: exists by email (should be false)
+GET {{baseUrl}}/api/v1/Users/exists?email=doesnotexist_{{suffix}}@example.com
+Authorization: Bearer {{adminToken}}
+
+
+
+

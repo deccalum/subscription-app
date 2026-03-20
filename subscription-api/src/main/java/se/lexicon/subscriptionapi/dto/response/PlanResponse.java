@@ -1,16 +1,16 @@
 package se.lexicon.subscriptionapi.dto.response;
 
 import java.math.BigDecimal;
-
 import se.lexicon.subscriptionapi.domain.constant.NetworkGeneration;
 import se.lexicon.subscriptionapi.domain.constant.PlanKind;
 import se.lexicon.subscriptionapi.domain.constant.PlanStatus;
+
 
 public record PlanResponse(
         Long id,
         PlanKind kind,
         String name,
-        OperatorResponse operator,
+        OperatorSummaryResponse operator,
         BigDecimal price,
         PlanStatus status,
         // Internet-specific

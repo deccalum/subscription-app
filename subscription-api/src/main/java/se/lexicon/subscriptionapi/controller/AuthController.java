@@ -24,10 +24,7 @@ import se.lexicon.subscriptionapi.security.JwtTokenProvider;
 import se.lexicon.subscriptionapi.security.TokenBlacklistService;
 import se.lexicon.subscriptionapi.service.UserService;
 
-@Tag(
-    name = "Auth",
-    description = "Authentication endpoints (login/register public, logout requires token)."
-)
+@Tag(name = "Auth", description = "Authentication endpoints (login/register public, logout requires token).")
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -40,19 +37,10 @@ public class AuthController {
 
     @PostMapping("/login")
     @SecurityRequirements
-    @Operation(
-        summary = "{api.auth.login.summary}",
-        description = "{api.auth.login.description}"
-    )
+    @Operation(summary = "{api.auth.login.summary}", description = "{api.auth.login.description}")
     public ResponseEntity<Map<String, Object>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password()));
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.email(),
-                        loginRequest.password()
-                )
-        );
-        
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String jwt = tokenProvider.generateToken(authentication);
@@ -64,23 +52,14 @@ public class AuthController {
 
     @PostMapping("/register")
     @SecurityRequirements
-    @Operation(
-        summary = "{api.auth.register.summary}",
-        description = "{api.auth.register.description}"
-    )
+    @Operation(summary = "{api.auth.register.summary}", description = "{api.auth.register.description}")
     public ResponseEntity<?> register(@Valid @RequestBody UserRequest request) {
-
         return ResponseEntity.ok(user.create(request));
     }
 
     @PostMapping("/logout")
-    @Operation(
-        summary = "{api.auth.logout.summary}",
-        description = "{api.auth.logout.description}",
-        security = @SecurityRequirement(name = "bearerAuth")
-    )
+    @Operation(summary = "{api.auth.logout.summary}", description = "{api.auth.logout.description}", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<String> logout(jakarta.servlet.http.HttpServletRequest request) {
-
         String jwt = getJwtFromRequest(request);
         if (jwt != null) {
             log.info("Logging out user with token: {}", jwt.substring(0, 10) + "...");
@@ -105,7 +84,6 @@ public class AuthController {
     }
 
     private String getJwtFromRequest(jakarta.servlet.http.HttpServletRequest request) {
-
         String bearerToken = request.getHeader("Authorization");
         if (org.springframework.util.StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);

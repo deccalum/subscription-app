@@ -12,5 +12,9 @@ public interface OperatorService {
     void delete(Long id);
 
     OperatorResponse getName(String name);
+    OperatorResponse getNameIgnoreCase(String name);
     List<OperatorResponse> getAll();
+
+    boolean existsByName(String name);
+    boolean existsByNameIgnoreCase(String name);
 }

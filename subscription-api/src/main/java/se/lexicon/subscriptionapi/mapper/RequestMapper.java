@@ -1,16 +1,17 @@
 package se.lexicon.subscriptionapi.mapper;
 
 import org.mapstruct.*;
+import se.lexicon.subscriptionapi.domain.constant.RequestStatus;
 import se.lexicon.subscriptionapi.domain.entity.ChangeRequest;
 import se.lexicon.subscriptionapi.domain.entity.request.*;
 import se.lexicon.subscriptionapi.domain.entity.user.UserAdmin;
 import se.lexicon.subscriptionapi.domain.entity.user.UserOperator;
-import se.lexicon.subscriptionapi.domain.constant.RequestStatus;
 import se.lexicon.subscriptionapi.dto.request.*;
 import se.lexicon.subscriptionapi.dto.request.OperatorRequest;
 import se.lexicon.subscriptionapi.dto.request.PlanRequest;
 import se.lexicon.subscriptionapi.dto.request.SubscriptionRequest;
 import se.lexicon.subscriptionapi.dto.response.ChangeRequestResponse;
+
 
 @Mapper(componentModel = "spring")
 public interface RequestMapper {

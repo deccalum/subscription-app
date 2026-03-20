@@ -55,6 +55,7 @@ logging:
   level:
     root: warn
     org.springframework: warn
+    org.springframework.security: DEBUG
     org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver: error
     org.hibernate: warn
     org.hibernate.SQL: off

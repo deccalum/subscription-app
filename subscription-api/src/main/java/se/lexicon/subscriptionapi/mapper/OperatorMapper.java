@@ -6,7 +6,6 @@ import se.lexicon.subscriptionapi.domain.entity.Operator;
 import se.lexicon.subscriptionapi.dto.request.OperatorRequest;
 import se.lexicon.subscriptionapi.dto.response.OperatorResponse;
 
-
 @Mapper(componentModel = "spring", uses = PlanMapper.class)
 public interface OperatorMapper {
     @Mapping(target = "id", source = "operator")

@@ -16,10 +16,7 @@ import se.lexicon.subscriptionapi.dto.request.UserRequest;
 import se.lexicon.subscriptionapi.dto.response.UserResponse;
 import se.lexicon.subscriptionapi.service.UserService;
 
-@Tag(
-    name = "Users", 
-    description = "User endpoints (public register; other endpoints require JWT)."
-)
+@Tag(name = "Users", description = "User endpoints (public register; other endpoints require JWT).")
 @RestController
 @RequestMapping("/api/v1/Users")
 @RequiredArgsConstructor
@@ -28,92 +25,65 @@ public class UserController {
 
     @PostMapping
     @SecurityRequirements
-    @Operation(
-        summary = "{api.user.create.summary}", 
-        description = "{api.user.create.description}"
-    )
+    @Operation(summary = "{api.user.create.summary}", description = "{api.user.create.description}")
     public ResponseEntity<UserResponse> create(@Valid @RequestBody UserRequest request) {
-        
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(user.create(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(user.create(request));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER', 'OPERATOR', 'ADMIN')")
-    @Operation(
-        summary = "{api.user.read.summary}", 
-        description = "{api.user.read.description}", 
-        security = @SecurityRequirement(name = "bearerAuth")
-    )
+    @Operation(summary = "{api.user.read.summary}", description = "{api.user.read.description}", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<UserResponse> read(@PathVariable Long id) {
-
-        return ResponseEntity
-        .ok(user.read(id));
+        return ResponseEntity.ok(user.read(id));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @Operation(
-        summary = "{api.user.update.summary}", 
-        description = "{api.user.update.description}", 
-        security = @SecurityRequirement(name = "bearerAuth")
-    )
+    @Operation(summary = "{api.user.update.summary}", description = "{api.user.update.description}", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<UserResponse> update(@PathVariable Long id, @Valid @RequestBody UserRequest request) {
-
-        return ResponseEntity
-        .ok(user.update(id, request));
+        return ResponseEntity.ok(user.update(id, request));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @Operation(
-        summary = "{api.user.delete.summary}", 
-        description = "{api.user.delete.description}", 
-        security = @SecurityRequirement(name = "bearerAuth")
-    )
+    @Operation(summary = "{api.user.delete.summary}", description = "{api.user.delete.description}", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-
         user.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('USER', 'OPERATOR', 'ADMIN')")
-    @Operation(
-        summary = "{api.user.getAll.summary}", 
-        description = "{api.user.getAll.description}", 
-        security = @SecurityRequirement(name = "bearerAuth")
-    )
+    @Operation(summary = "{api.user.getAll.summary}", description = "{api.user.getAll.description}", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<List<UserResponse>> getAll() {
-
-        return ResponseEntity
-        .ok(user.getAll());
+        return ResponseEntity.ok(user.getAll());
     }
 
     @GetMapping("/credentials")
     @PreAuthorize("hasAnyRole('USER', 'OPERATOR', 'ADMIN')")
-    @Operation(
-        summary = "{api.user.getCredentials.summary}", 
-        description = "{api.user.getCredentials.description}", 
-        security = @SecurityRequirement(name = "bearerAuth")
-    )
+    @Operation(summary = "{api.user.getCredentials.summary}", description = "{api.user.getCredentials.description}", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<UserResponse> getCredentials(@RequestParam UserCredentials credential) {
-
-        return ResponseEntity
-        .ok(user.getCredentials(credential));
+        return ResponseEntity.ok(user.getCredentials(credential));
     }
 
     @GetMapping("/email/{email}")
     @PreAuthorize("hasAnyRole('USER', 'OPERATOR', 'ADMIN')")
-    @Operation(
-        summary = "{api.user.getEmail.summary}", 
-        description = "{api.user.getEmail.description}", 
-        security = @SecurityRequirement(name = "bearerAuth")
-    )
+    @Operation(summary = "{api.user.getEmail.summary}", description = "{api.user.getEmail.description}", security = @SecurityRequirement(name = "bearerAuth"))
     public ResponseEntity<UserResponse> getEmail(@PathVariable String email) {
-        
-        return ResponseEntity
-        .ok(user.getEmail(email));
+        return ResponseEntity.ok(user.getEmail(email));
+    }
+
+    @GetMapping("/exists")
+    @PreAuthorize("hasAnyRole('USER', 'OPERATOR', 'ADMIN')")
+    @Operation(summary = "{api.user.exists.summary}", description = "{api.user.exists.description}", security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<Boolean> existsByEmail(@RequestParam String email) {
+        return ResponseEntity.ok(user.existsByEmail(email));
+    }
+
+    @GetMapping("/search")
+    @PreAuthorize("hasAnyRole('USER', 'OPERATOR', 'ADMIN')")
+    @Operation(summary = "{api.user.getName.summary}", description = "{api.user.getName.description}", security = @SecurityRequirement(name = "bearerAuth"))
+    public ResponseEntity<UserResponse> getName(@RequestParam String name) {
+        return ResponseEntity.ok(user.getName(name));
     }
 }

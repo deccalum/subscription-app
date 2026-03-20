@@ -15,4 +15,8 @@ public interface SubscriptionService {
     List<SubscriptionResponse> getAll();
     List<SubscriptionResponse> getUserId(Long userId);
     List<SubscriptionResponse> getStatus(SubscriptionStatus status);
+
+    List<SubscriptionResponse> findByUserName(String name);
+    List<SubscriptionResponse> findByUserIdAndStatus(Long userId, SubscriptionStatus status);
+    long countSubscriptions();
 }
