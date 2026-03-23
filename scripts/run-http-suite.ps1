@@ -1,4 +1,4 @@
-# PowerShell HTTP test runner for subscription-api/request.http
+# PowerShell HTTP test runner for subscription-api/scripts/request.http
 # Runs bootstrap and repository-backed tests top-to-bottom.
 # Usage: powershell -ExecutionPolicy Bypass -File .\scripts\run-http-suite.ps1
 
@@ -77,7 +77,7 @@ function Wait-ForPortOpen {
         }
         Start-Sleep -Seconds 2
     }
-    throw "Timed out waiting for $Host:$Port to be open after $TimeoutSeconds seconds"
+    throw "Timed out waiting for ${Host}:${Port} to be open after $TimeoutSeconds seconds"
 }
 
 # Ensure the application is listening before starting the test sequence
@@ -85,7 +85,7 @@ try {
     $uri = [uri]$baseUrl
     $hostToCheck = $uri.Host
     $portToCheck = $uri.Port
-    Write-Host "Waiting for $hostToCheck:$portToCheck to accept connections..." -ForegroundColor Cyan
+    Write-Host "Waiting for ${hostToCheck}:${portToCheck} to accept connections..." -ForegroundColor Cyan
     Wait-ForPortOpen -Host $hostToCheck -Port $portToCheck -TimeoutSeconds 120
 }
 catch {
@@ -177,6 +177,41 @@ $createPlan = Invoke-JsonRequest -Method POST -Uri "$baseUrl/api/v1/plans" -Body
 if ($null -eq $createPlan) { throw 'createPlan failed' }
 $planId = $createPlan.id
 Write-Host "Plan created: id=$planId" -ForegroundColor Green
+
+# --- Change Request Flow: Operator submits, admin reviews, operator checks status ---
+Write-Host "\n--- Change Request Flow: Operator submits, admin reviews, operator checks status ---\n" -ForegroundColor Magenta
+
+# Operator submits create plan change request
+$crBody = @{
+    name              = "PlanByChangeRequest$suffix"
+    kind              = "INTERNET"
+    operatorId        = $operatorEntityId
+    price             = 123.45
+    status            = "PENDING"
+    uploadSpeedMbps   = 50
+    downloadSpeedMbps = 200
+}
+$submitChangeRequest = Invoke-JsonRequest -Method POST -Uri "$baseUrl/api/v1/change-requests/plan/create" -Body $crBody -Token $operatorToken
+if ($null -eq $submitChangeRequest) { throw 'operator submit change request failed' }
+$changeRequestId = $submitChangeRequest.id
+Write-Host "Operator submitted change request: id=$changeRequestId" -ForegroundColor Green
+
+# Admin lists pending change requests
+$pendingRequests = Invoke-JsonRequest -Method GET -Uri "$baseUrl/api/v1/change-requests?status=PENDING" -Token $adminToken
+Write-Host "Admin sees pending change requests: $($pendingRequests.Count) found" -ForegroundColor Green
+
+# Admin approves the change request
+$approveResult = Invoke-JsonRequest -Method POST -Uri "$baseUrl/api/v1/change-requests/$changeRequestId/approve" -Token $adminToken
+if ($null -eq $approveResult) { Write-Host 'admin approve change request failed (will try deny)' -ForegroundColor Yellow }
+
+# (Optional) Admin denies the change request (if not already approved)
+# $denyResult = Invoke-JsonRequest -Method POST -Uri "$baseUrl/api/v1/change-requests/$changeRequestId/reject" -Body @{ reason = 'Not allowed for test' } -Token $adminToken
+# if ($null -eq $denyResult) { Write-Host 'admin deny change request failed' -ForegroundColor Yellow }
+
+# Operator checks status of their change requests
+$myRequests = Invoke-JsonRequest -Method GET -Uri "$baseUrl/api/v1/change-requests/my" -Token $operatorToken
+Write-Host "Operator sees their change requests: $($myRequests.Count) found" -ForegroundColor Green
+
 
 # 10) Create subscription seed (admin)
 $createSub = Invoke-JsonRequest -Method POST -Uri "$baseUrl/api/v1/subscriptions" -Body @{ operatorId = $operatorEntityId; planId = $planId; userId = $userId; status = 'ACTIVE' } -Token $adminToken

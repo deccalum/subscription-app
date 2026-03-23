@@ -1,4 +1,97 @@
 ### =============================================================
+### CHANGE REQUEST FLOW: Operator submits, admin reviews, operator checks status
+### =============================================================
+
+### OPERATOR-CR-01: Operator submits create plan change request
+# @name operatorSubmitCreatePlanChangeRequest
+POST {{baseUrl}}/api/v1/operators/requests/plans
+Content-Type: application/json
+Authorization: Bearer {{operatorToken}}
+
+{
+    "action": "CREATE",
+    "name": "PlanByChangeRequest{{suffix}}",
+    "kind": "INTERNET",
+    "price": 123.45,
+    "status": "ACTIVE",
+    "uploadSpeedMbps": 50,
+    "downloadSpeedMbps": 200
+}
+
+### Capture change request id
+@changeRequestId = {{operatorSubmitCreatePlanChangeRequest.response.body.$.id}}
+
+### ADMIN-CR-01: Admin lists pending change requests
+# @name adminListPendingChangeRequests
+GET {{baseUrl}}/api/v1/admin/requests?status=PENDING
+Authorization: Bearer {{adminToken}}
+
+### ADMIN-CR-02: Admin approves the change request
+# @name adminApproveChangeRequest
+POST {{baseUrl}}/api/v1/admin/requests/{{changeRequestId}}/approve
+Authorization: Bearer {{adminToken}}
+
+### ADMIN-CR-03: Admin denies a change request (example, not run if approved above)
+# @name adminDenyChangeRequest
+POST {{baseUrl}}/api/v1/admin/requests/{{changeRequestId}}/reject
+Content-Type: application/json
+Authorization: Bearer {{adminToken}}
+
+{
+    "reason": "Not allowed for test"
+}
+
+### OPERATOR-CR-02: Operator checks status of their change requests
+# @name operatorListMyChangeRequests
+GET {{baseUrl}}/api/v1/operators/requests/mine
+Authorization: Bearer {{operatorToken}}
+
+### OPERATOR-CR-03: Operator submits update plan change request
+# @name operatorSubmitUpdatePlanChangeRequest
+PUT {{baseUrl}}/api/v1/operators/requests/plans/{{planId}}
+Content-Type: application/json
+Authorization: Bearer {{operatorToken}}
+
+{
+    "action": "UPDATE",
+    "kind": "INTERNET",
+    "name": "PlanSeedUpdatedByRequest{{suffix}}",
+    "price": 219.00,
+    "status": "ACTIVE",
+    "uploadSpeedMbps": 120,
+    "downloadSpeedMbps": 550
+}
+
+### OPERATOR-CR-04: Operator submits delete plan change request
+# @name operatorSubmitDeletePlanChangeRequest
+DELETE {{baseUrl}}/api/v1/operators/requests/plans/{{planId}}
+Authorization: Bearer {{operatorToken}}
+
+### OPERATOR-CR-05: Operator submits update operator change request
+# @name operatorSubmitUpdateOperatorChangeRequest
+PUT {{baseUrl}}/api/v1/operators/requests/operator/{{operatorEntityId}}
+Content-Type: application/json
+Authorization: Bearer {{operatorToken}}
+
+{
+    "action": "UPDATE",
+    "name": "OperatorEntityUpdatedByRequest{{suffix}}",
+    "countryCode": "SE"
+}
+
+### OPERATOR-CR-06: Operator submits create subscription change request
+# @name operatorSubmitCreateSubscriptionChangeRequest
+POST {{baseUrl}}/api/v1/operators/requests/subscriptions
+Content-Type: application/json
+Authorization: Bearer {{operatorToken}}
+
+{
+    "action": "CREATE",
+    "planId": {{planId}},
+    "userId": {{userId}}
+}
+
+### =============================================================
 ### Base config and dynamic test data
 ### =============================================================
 @baseUrl = http://localhost:8080
@@ -144,7 +237,7 @@ Content-Type: application/json
 Authorization: Bearer {{adminToken}}
 
 {
-    "operator": null,
+    "countryCode": "SE",
     "name": "OperatorEntity{{suffix}}"
 }
 
@@ -398,21 +491,22 @@ Content-Type: application/json
 Authorization: Bearer {{adminToken}}
 
 {
-    "operator": null,
+    "countryCode": "SE",
     "name": ""
 }
 
 ### OPERATOR-02 SUCCESS: create operator (admin) — also used earlier as seed
+# @name createOperatorSuccess
 POST {{baseUrl}}/api/v1/operators
 Content-Type: application/json
 Authorization: Bearer {{adminToken}}
 
 {
-    "operator": null,
+    "countryCode": "SE",
     "name": "OperatorForTests{{suffix}}"
 }
 
-@operatorForTestsId = {{createOperatorFail.response.body.$.id}}
+@operatorForTestsId = {{createOperatorSuccess.response.body.$.id}}
 
 ### OPERATOR-03 SUCCESS: update operator name
 PUT {{baseUrl}}/api/v1/operators/{{operatorForTestsId}}
@@ -420,7 +514,7 @@ Content-Type: application/json
 Authorization: Bearer {{adminToken}}
 
 {
-    "operator": {{operatorForTestsId}},
+    "countryCode": "SE",
     "name": "OperatorForTestsRenamed{{suffix}}"
 }
 
@@ -430,7 +524,7 @@ Content-Type: application/json
 Authorization: Bearer {{adminToken}}
 
 {
-    "operator": {{operatorForTestsId}},
+    "countryCode": "SE",
     "name": ""
 }
 
@@ -531,7 +625,7 @@ GET {{baseUrl}}/api/v1/operators/exists?name=OperatorEntity{{suffix}}
 Authorization: Bearer {{adminToken}}
 
 ### OP-REPO-03 SUCCESS: exists by name (ignore case)
-GET {{baseUrl}}/api/v1/operators/exists/ignorecase?name=operatorentity{{suffix}}
+GET {{baseUrl}}/api/v1/operators/exists?name=operatorentity{{suffix}}&ignoreCase=true
 Authorization: Bearer {{adminToken}}
 
 ### =============================================================
@@ -561,7 +655,3 @@ Authorization: Bearer {{adminToken}}
 ### USER-REPO-02 FAIL: exists by email (should be false)
 GET {{baseUrl}}/api/v1/Users/exists?email=doesnotexist_{{suffix}}@example.com
 Authorization: Bearer {{adminToken}}
-
-
-
-
