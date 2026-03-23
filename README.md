@@ -45,6 +45,7 @@ Added a queued change-request workflow for operator-initiated admin actions:
 - admin local-only login policy (larger security overhaul)
 - add login event table with timestamp, ip, user-agent, outcome, reason
 - Additional tests that are missing.
+
 user identity strategy:
 - keep numeric db primary key as internal id
 - add immutable public id (string) for display/search, e.g. A-000123, O-000456, U-000789
